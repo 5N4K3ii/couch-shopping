@@ -51,10 +51,7 @@
 
         function invalidResponse() {
             console.log("Called invalidResp");
-            let db_url = window.localStorage.getItem('db_url');
-            db_url = window.prompt('Enter Couch DB URL for Couch Shopping:', db_url);
-            window.localStorage.setItem('db_url', db_url);
-            checker();
+            window.location.replace('/configure.html')
         }
 
         function isArray(what) {
@@ -62,19 +59,18 @@
         }
 
         function checker() {
-          console.log("Called checker2");
           let storedURL = window.localStorage.getItem('db_url')
           if (null == storedURL) {
             window.location.replace('/configure.html')
           }
-          console.log('stored url', storedURL)
+
           let asURL = new URL(storedURL);
           let userid = asURL.username;
           let password = asURL.password;
           let host = asURL.host;
-          console.log('userid', userid, 'password', password)
           let protocol = asURL.protocol
           let auth = ((userid === undefined) || (password === undefined)) ? ':' : userid + ':' + password;
+
           let url = protocol + '//' + host + path;
           let response = fetch(url, {method: 'GET',
                                      credentials: 'same-origin',
