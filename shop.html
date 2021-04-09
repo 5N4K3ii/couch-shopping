@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0, maximum-scale=1.0">
+    <title>Shopping List - Target</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div style="text-align: center;"><a href="/index.html">Home</a></div>
+    <div class="shopping-list">
+        <header class="shopping-list-header">
+            <h1>Shopping List</h1>
+        </header>
+
+        <main class="shopping-list-main">
+            <section class="shopping-list-section">
+                <ul id="itemList" class="shopping-list-list">
+                    <li class="shopping-list-list-item">
+                      <table><tr>
+                          <td class="cart-column">
+                            <button class="cart-toggle" type="button"></button> <!-- cart-toggle -->
+                          </td>
+                          <td>
+                            <div class="shopping-item-name">Miscellaneous</div>
+                            <div class="invisible shopping-item-category">10</div>
+                            <div class="invisible shopping-item-incart">false</div>
+                          </td>
+                          <td class="actions-column">
+                            <button class="edit-item" type="button"></button> <!-- edit-item -->
+                            <button class="add-item" type="button"></button> <!-- add-item -->
+                            <button class="delete-item" type="button"></button> <!-- delete-item -->
+                            <button class="clear-list" type="button"></button> <!-- cart-toggle -->
+                          </td>
+                      </tr></table>
+                    </li>
+                </ul>
+            </section>
+
+            <section id="listItemDetailSection" class="shopping-item-details-section">
+                <form id="listItemDetails" class="shopping-item-details">
+                    <input type="hidden" id="listItemId" />
+                    <div class="shopping-item-field">
+                        <label for="itemname">Item Name</label>
+                        <input id="itemname" />
+                    </div>
+                    <div class="shopping-item-field">
+                        <label for="category">Category</label>
+                        <select name="category" id="category">
+                        </select>
+                    </div>
+                    <div class="invisible shopping-item-field">
+                        <label for="incart">In Cart</label>
+                        <input id="incart" type="tel" autocomplete="off" />
+                    </div>
+                </form>
+                <div class="shopping-item-controls">
+                    <button id="addListItem" class="shopping-item-add" type="button">+ Add</button>
+                    <button id="removeListItem" class="shopping-item-remove" type="button">Delete</button>
+                    <button id="editListItem" type="button">Edit</button>
+                    <button id="cancelEdit" type="button">Cancel</button>
+                    <button id="saveListItem" type="submit">Save</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="js/ext/babel.min.js"></script>
+    <script src="js/ext/pouchdb.min.js"></script>
+    <!-- <script src="js/register-service-worker.js"></script> -->
+    <script src="js/screenOrientation.js"></script>
+
+    <script type="text/babel" src="js/store.js"></script>
+    <script type="text/babel" src="js/app.js"></script>
+    <script type="text/babel" src="js/shop-app.js"></script>
+    <script type="text/babel">
+        function shoppingModeChanged() {
+            if (shoppingList.isShopping) {
+              getWakeLock()
+            } else {
+              releaseWakeLock()
+            }
+        }
+
+        // Create a reference for the Wake Lock.
+        let wakeLock = null;
+
+        async function getWakeLock() {
+          // create an async function to request a wake lock
+          try {
+            wakeLock = await navigator.wakeLock.request('screen');
+          } catch (err) {
+            // The Wake Lock request has failed - usually system related, such as battery.
+            console.log('wakelock not acquired:', `${err.name}, ${err.message}`)
+          }
+        }
+
+        function releaseWakeLock() {
+          if (wakeLock != null) {
+            wakeLock.release()
+              .then(() => {
+                wakeLock = null;
+              });
+          }
+        }
+
+        document.addEventListener('visibilitychange', async () => {
+          if (wakeLock !== null && document.visibilityState === 'visible') {
+            wakeLock = await navigator.wakeLock.request('screen');
+          }
+        });
+
+        let srchParams = new URLSearchParams(window.location.search);
+        let storeName = srchParams.get("store");
+        let db_url = window.localStorage.getItem('db_url');
+        if ((null == storeName) || (null == db_url)) {
+          window.location.replace("/index.html");
+        } else {
+          console.log("DB_URL", db_url, "store", storeName)
+        }
+        //let shoppingList = new ShoppingList(Store, url, storeName, shoppingModeChanged);
+    </script>
+</body>
+</html>

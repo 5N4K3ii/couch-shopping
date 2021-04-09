@@ -1,0 +1,15 @@
+{
+  "short_name": "Couch Shopping",
+  "name": "Couch Shopping List",
+  "icons": [
+    {
+      "src":"/images/appicon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ],
+  "start_url": "index.html",
+  "background_color": "#820185",
+  "theme_color": "#820185",
+  "display": "fullscreen"
+}

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+    <form action="">
+        <label for="url">Enter CouchDB URL:</label>
+        <input type="text" name="url" id="url"/>
+        <input type="submit" name="Set URL" id="subButton"/>
+    </form>
+
+    <script>
+        let subButton = document.getElementById('subButton')
+        let urlText = document.getElementById('url')
+
+        function handleSubmit(e) {
+            e.preventDefault();
+            window.localStorage.setItem('db_url', urlText.value)
+            window.location.href = "/index.html"
+        }
+
+        subButton.onclick = handleSubmit
+
+    </script>
+</html>
