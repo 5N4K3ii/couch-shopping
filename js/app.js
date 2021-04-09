@@ -41,17 +41,6 @@ class ShoppingBase {
         this.saveListItemButton = document.getElementById('saveListItem');
         this.cancelEditButton = document.getElementById('cancelEdit');
 
-        let aisleHolder = document.getElementById('aisle-holder');
-        let attr = aisleHolder.getAttribute('data-aisles');
-        this.aisles = JSON.parse(attr);
-        for (let i=0; i < this.aisles.length; i++) {
-          if (!this.aisles[i].incart) {
-            let x = document.createElement("OPTION");
-            x.value = this.aisles[i].category;
-            x.text = this.aisles[i].item;
-            this.categoryField.appendChild(x);
-          }
-        }
     }
 
     initItemTemplate() {
@@ -91,10 +80,24 @@ class ShoppingBase {
               this.shoppingChangeHandler()
             }
 
+            let options = select_item.getElementsByTagName('option');
+            for (var i=options.length; i--;) {
+                this.categoryField.removeChild(options[i]);
+            }
+            this.aisles = items.filter(item => {item.isCategory})
+
+            for (let i=0; i < this.aisles.length; i++) {
+              if (!this.aisles[i].incart) {
+                let x = document.createElement("OPTION");
+                x.value = this.aisles[i].category;
+                x.text = this.aisles[i].item;
+                this.categoryField.appendChild(x);
+              }
+            }
+    
             //standard refresh logic
-            let itemList = items.concat(this.aisles);
-            this.sortItems(itemList);
-            this.renderitemList(itemList);
+            this.sortItems(items);
+            this.renderitemList(items);
         });
     }
 
@@ -117,9 +120,9 @@ class ShoppingBase {
 
             if (diff != 0) return diff;
 
-            if (item1._id === undefined) {
+            if (item1.isCategory) {
               diff = -1;
-            } else if (item2._id === undefined) {
+            } else if (item2.isCategory) {
               diff = 1;
             } else {
               diff = 0;
@@ -165,7 +168,7 @@ class ShoppingBase {
         result.querySelector('.shopping-item-name').innerText = item.item;
         result.querySelector('.shopping-item-category').innerText = item.category;
         result.querySelector('.shopping-item-incart').innerText = item.incart;
-        if (item._id) {
+        if (!item.isCategory) {
           result.querySelector('.add-item').classList.add('invisible');
           result.querySelector('.clear-list').classList.add('invisible');
         } else {
