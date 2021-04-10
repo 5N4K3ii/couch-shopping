@@ -114,7 +114,7 @@
         let storeName = srchParams.get("store");
         let db_url = window.localStorage.getItem('db_url');
         if ((null == storeName) || (null == db_url)) {
-          window.location.replace("/index.html");
+          window.location.replace("/couch-shopping/index.html");
         } else {
           console.log("DB_URL", db_url, "store", storeName)
         }        
