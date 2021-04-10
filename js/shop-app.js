@@ -7,7 +7,16 @@ var NO_ITEMS_TEXT = 'No items';
 class ShoppingList {
 
     constructor(storeClass, remote, dbname, shoppingChangeHandler) {
-        new baseApp(storeClass, remote, dbname, shoppingChangeHandler);
+        this.shoppingChangeHandler = shoppingChangeHandler;
+        this.isShopping = false;
+        this.store = new storeClass(dbname, remote, () => {
+            this.refresh();
+        });
+
+        this.init();
+        this.refresh();
+        this.toggleItemFormEditing(false);
+
     }
 
     init() {
@@ -32,17 +41,6 @@ class ShoppingList {
         this.saveListItemButton = document.getElementById('saveListItem');
         this.cancelEditButton = document.getElementById('cancelEdit');
 
-        let aisleHolder = document.getElementById('aisle-holder');
-        let attr = aisleHolder.getAttribute('data-aisles');
-        this.aisles = JSON.parse(attr);
-        for (let i=0; i < this.aisles.length; i++) {
-          if (!this.aisles[i].incart) {
-            let x = document.createElement("OPTION");
-            x.value = this.aisles[i].category;
-            x.text = this.aisles[i].item;
-            this.categoryField.appendChild(x);
-          }
-        }
     }
 
     initItemTemplate() {
@@ -82,10 +80,26 @@ class ShoppingList {
               this.shoppingChangeHandler()
             }
 
+            let options = this.categoryField.getElementsByTagName('option');
+            for (var i=options.length; i--;) {
+                this.categoryField.removeChild(options[i]);
+            }
+            this.aisles = items.filter(item => item.isCategory)
+
+            for (let i=0; i < this.aisles.length; i++) {
+              if (!this.aisles[i].incart) {
+                let x = document.createElement("OPTION");
+                x.value = this.aisles[i].category;
+                x.text = this.aisles[i].item;
+                this.categoryField.appendChild(x);
+              }
+            }
+
+            let allItems = items.concat({incart: true, category: "000", item: "Cart", isCategory: true})
+    
             //standard refresh logic
-            let itemList = items.concat(this.aisles);
-            this.sortItems(itemList);
-            this.renderitemList(itemList);
+            this.sortItems(allItems);
+            this.renderitemList(allItems);
         });
     }
 
@@ -108,9 +122,9 @@ class ShoppingList {
 
             if (diff != 0) return diff;
 
-            if (item1._id === undefined) {
+            if (item1.isCategory) {
               diff = -1;
-            } else if (item2._id === undefined) {
+            } else if (item2.isCategory) {
               diff = 1;
             } else {
               diff = 0;
@@ -156,7 +170,7 @@ class ShoppingList {
         result.querySelector('.shopping-item-name').innerText = item.item;
         result.querySelector('.shopping-item-category').innerText = item.category;
         result.querySelector('.shopping-item-incart').innerText = item.incart;
-        if (item._id) {
+        if (!item.isCategory) {
           result.querySelector('.add-item').classList.add('invisible');
           result.querySelector('.clear-list').classList.add('invisible');
         } else {

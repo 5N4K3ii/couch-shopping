@@ -7,7 +7,15 @@ var NO_ITEMS_TEXT = 'No items';
 class AisleList {
 
     constructor(storeClass, remote, dbname, shoppingChangeHandler) {
-        new baseApp(storeClass, remote, dbname, shoppingChangeHandler)
+        this.shoppingChangeHandler = shoppingChangeHandler;
+        this.isShopping = false;
+        this.store = new storeClass(dbname, remote, () => {
+            this.refresh();
+        });
+
+        this.init();
+        this.refresh();
+        this.toggleItemFormEditing(false);
     }
 
     init() {
@@ -32,17 +40,8 @@ class AisleList {
         this.saveListItemButton = document.getElementById('saveListItem');
         this.cancelEditButton = document.getElementById('cancelEdit');
 
-        let aisleHolder = document.getElementById('aisle-holder');
-        let attr = aisleHolder.getAttribute('data-aisles');
-        this.aisles = JSON.parse(attr);
-        for (let i=0; i < this.aisles.length; i++) {
-          if (!this.aisles[i].incart) {
-            let x = document.createElement("OPTION");
-            x.value = this.aisles[i].category;
-            x.text = this.aisles[i].item;
-            this.categoryField.appendChild(x);
-          }
-        }
+        this.addCatButton = document.getElementById('addCat')
+
     }
 
     initItemTemplate() {
@@ -55,6 +54,8 @@ class AisleList {
         this.listItemDetailsForm.addEventListener('submit', event => {
             event.preventDefault();
         });
+
+        this.addCatButton.addEventListener('click', () => { this.addCategory() })
 
         this.itemnameField.addEventListener('keyup', event => {
           if (event.keyCode === 13) {
@@ -72,6 +73,23 @@ class AisleList {
         this.cancelEditButton.addEventListener('click', () => { this.cancelEdit() });
     }
 
+    addCategory() {
+        // console.log("Find max cat for aisles: ", JSON.stringify(this.aisles, null, 2))
+        let maxCat = this.aisles.reduce((prev, current) => (prev.category > current.category) ? prev : current)
+        // console.log("Max category found:", JSON.stringify(maxCat, null, 2))
+        let newCatInt = Number(maxCat.category) + 10
+        // console.log("Creating new category with id: ", newCatInt)
+        let item = {item: 'NewItem' + newCatInt,
+                    incart: false,
+                    isCategory: true,
+                    category: newCatInt}
+        this.store.save(item).then(() => {
+            this.setlistItemDetails({});
+            this.toggleItemFormEditing(false);
+            this.refresh();
+        });
+    }
+
     refresh() {
         this.store.getAll().then(items => {
             //Signal for shopping mode
@@ -82,10 +100,22 @@ class AisleList {
               this.shoppingChangeHandler()
             }
 
+            // let options = this.categoryField.getElementsByTagName('option');
+            // for (var i=options.length; i--;) {
+            //     this.categoryField.removeChild(options[i]);
+            // }
+            this.aisles = items.filter(item => item.isCategory)
+
+            // for (let i=0; i < this.aisles.length; i++) {
+            //     let x = document.createElement("OPTION");
+            //     x.value = this.aisles[i].category;
+            //     x.text = this.aisles[i].item;
+            //     this.categoryField.appendChild(x);
+            // }
+
             //standard refresh logic
-            let itemList = items.concat(this.aisles);
-            this.sortItems(itemList);
-            this.renderitemList(itemList);
+            this.sortItems(this.aisles);
+            this.renderitemList(this.aisles);
         });
     }
 
@@ -156,25 +186,14 @@ class AisleList {
         result.querySelector('.shopping-item-name').innerText = item.item;
         result.querySelector('.shopping-item-category').innerText = item.category;
         result.querySelector('.shopping-item-incart').innerText = item.incart;
-        if (item._id) {
-          result.querySelector('.add-item').classList.add('invisible');
-          result.querySelector('.clear-list').classList.add('invisible');
-        } else {
-          result.classList.add('category');
-          result.querySelector('.cart-toggle').classList.add('invisible');
-          result.querySelector('.edit-item').classList.add('invisible');
-          result.querySelector('.delete-item').classList.add('invisible');
-          if (item.incart) {
-            result.querySelector('.add-item').classList.add('invisible');
-          } else {
-            result.querySelector('.clear-list').classList.add('invisible');
-          }
-        }
-        result.querySelector('.cart-toggle').addEventListener('click', event => { this.toggleCart(event) });
+        result.querySelector('.add-item').classList.add('invisible');
+        result.querySelector('.clear-list').classList.add('invisible');
+        result.classList.add('category');
+        result.querySelector('.cart-toggle').classList.add('invisible');
+        result.querySelector('.clear-list').classList.add('invisible');
+
         result.querySelector('.edit-item').addEventListener('click', async (event) => { await this.showItem(event); this.editListItem() });
         result.querySelector('.delete-item').addEventListener('click', event => { this.deleteItem(event) });
-        result.querySelector('.add-item').addEventListener('click', event => { this.addListItem(item.category) });
-        result.querySelector('.clear-list').addEventListener('click', event => { this.clearCart() });
 
         // result.addEventListener('click', event => { this.showItem(event) });
         return result;
@@ -252,7 +271,7 @@ class AisleList {
 
     saveListItem() {
         var item = this.getlistItemDetails();
-        // console.log("Saving incart=", item.incart);
+        // console.log("Saving category=", JSON.stringify(item, null, 2));
         this.store.save(item).then(() => {
             this.setlistItemDetails({});
             this.toggleItemFormEditing(false);
@@ -285,6 +304,7 @@ class AisleList {
         return {
             _id: this.getlistItemId(),
             item: this.itemnameField.value,
+            isCategory: true,
             category: this.categoryField.value,
             incart: (this.incartField.value == "true")
         };
@@ -295,6 +315,7 @@ class AisleList {
     }
 
     setlistItemDetails(listItemDetails) {
+        // console.log("Setting edit screen", JSON.stringify(listItemDetails, null, 2))
         this.listItemIdField.value = listItemDetails._id || '';
         this.itemnameField.value = listItemDetails.item || '';
         this.categoryField.value = listItemDetails.category || '';

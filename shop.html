@@ -10,7 +10,7 @@
     <div style="text-align: center;"><a href="/index.html"><img src="images/home1600.png" width="50" height="50" alt="home"></a></div>
     <div class="shopping-list">
         <header class="shopping-list-header">
-            <h1>Shopping List</h1>
+            <h1 id="mainHdr">Shopping List</h1>
         </header>
 
         <main class="shopping-list-main">
@@ -117,8 +117,10 @@
           window.location.replace("/index.html");
         } else {
           console.log("DB_URL", db_url, "store", storeName)
-        }
-        let shoppingList = new ShoppingList(Store, url, storeName, shoppingModeChanged);
+        }        
+        let mainHeader = document.getElementById("mainHdr")
+        mainHeader.innerText = mainHeader.innerText + ' ' + storeName
+        let shoppingList = new ShoppingList(Store, db_url, storeName, shoppingModeChanged);
     </script>
 </body>
 </html>

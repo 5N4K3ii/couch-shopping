@@ -14,12 +14,31 @@
 <body>
     <div class="shopping-list">
         <header class="shopping-list-header">
-            <h1>Couch Shopping</h1>
+          <button style="float: right" id="addStore">Add a Store</button>
+          <h1>Couch Shopping</h1>
         </header>
 
         <main class="shopping-list-main">
             <section class="shopping-list-section">
                 <ul id="itemList" class="shopping-list-list">
+                  <li class="shopping-list-list-item">
+                    <table><tr>
+                        <td class="cart-column">
+                          <button class="cart-toggle" type="button"></button> <!-- cart-toggle -->
+                        </td>
+                        <td>
+                          <div class="shopping-item-name"></div>
+                          <div class="invisible shopping-item-category">10</div>
+                          <div class="invisible shopping-item-incart">false</div>
+                        </td>
+                        <td class="actions-column">
+                          <button class="edit-item" type="button"></button> <!-- edit-item -->
+                          <button class="add-item" type="button"></button> <!-- add-item -->
+                          <button class="delete-item" type="button"></button> <!-- delete-item -->
+                          <button class="clear-list" type="button"></button> <!-- cart-toggle -->
+                        </td>
+                    </tr></table>
+                  </li>
                 </ul>
             </section>
 
@@ -30,23 +49,129 @@
     <script src="js/screenOrientation.js"></script>
 
     <script>
+        const STORE_NAME_ATTR = 'data-storename'
+        let itemList = document.getElementById('itemList');
+        var itemListItem = this.itemList.querySelector('li');
+        itemList.removeChild(itemListItem);
+        let _itemTemplate = itemListItem;
+
         let path="/_all_dbs";
+        let addStoreButton = document.getElementById('addStore')
+        addStoreButton.onclick = addNewStore
+
+        async function addNewStore() {
+          let newStoreName = window.prompt('Enter new Store Name')
+          let validStoreName = /^[a-zA-Z0-9\-]+$/.test(newStoreName)
+          if (newStoreName && validStoreName) {
+            console.log('Storename is valid:', newStoreName)
+            let asURL = new URL(window.localStorage.getItem('db_url'));
+            let userid = asURL.username;
+            let password = asURL.password;
+            let host = asURL.host;
+            let protocol = asURL.protocol
+            let auth = ((userid === undefined) || (password === undefined)) ? ':' : userid + ':' + password;
+
+            let url = protocol + '//' + host + "/" + newStoreName
+
+            await fetch(url, {method: 'PUT',
+                              credentials: 'same-origin',
+                              redirect: 'follow',
+                              agent: null,
+                              headers: {
+                                "Content-Type": "text/plain",
+                                'Authorization': 'Basic ' + btoa(auth)
+                               },
+                              timeout: 5000})
+                        .then(resp => console.log("Created DB", resp))
+                        .catch(err => console.error("Error Creating DB", err))
+
+            await fetch(url, {method: 'POST',
+                              credentials: 'same-origin',
+                              redirect: 'follow',
+                              agent: null,
+                              headers: {
+                                "Content-Type": "application/json",
+                                'Authorization': 'Basic ' + btoa(auth)
+                              },
+                              body: '{"isCategory": true, "item": "Miscellaneous", "category": "10", "incart": false}',
+                              timeout: 5000})
+                        .then(resp => console.log("Added Misc", resp))
+                        .catch(err => console.error("Error Adding Misc", err))
+
+            window.location.href = "/edit-store.html?store=" + newStoreName
+            
+          } else {
+            window.alert("Valid store names contain letters, numbers, and hyphens (no spaces or other characters)")
+          }
+          
+        }
 
         function completed(dbList) {
           console.log("Called completed");
           let list = document.getElementById('itemList');
 
           for (let i = 0; i < dbList.length; i++) {
-            let li = document.createElement("li");
-            li.style.margin = '10px';
+            var result = _itemTemplate.cloneNode(true);
+            result.setAttribute(STORE_NAME_ATTR, dbList[i])
             let a = document.createElement('a');
             a.href =  'shop.html?store=' + dbList[i];
             a.innerHTML = dbList[i];
             a.style.padding = '10px';
-            li.appendChild(a);
-            list.appendChild(li);
+
+            result.querySelector('.shopping-item-name').appendChild(a)
+            result.querySelector('.add-item').classList.add('invisible');
+            result.querySelector('.clear-list').classList.add('invisible');
+            result.querySelector('.cart-toggle').classList.add('invisible');
+
+            result.querySelector('.edit-item').addEventListener('click', async (event) => { await editStore(event); this.editListItem() });
+            result.querySelector('.delete-item').addEventListener('click', event => { deleteStore(event) });
+
+            list.appendChild(result);
             console.log("DBName = ", dbList[i]);
           }
+        }
+
+        function findListNode(target) {
+          let result = target
+          while (result.tagName != "LI") {
+            result = result.parentNode
+          }
+          console.log(result)
+          return result
+        }
+
+        function editStore(event) {
+          let storeName = this.findListNode(event.currentTarget).getAttribute(STORE_NAME_ATTR);
+
+          window.location.href = "/edit-store.html?store=" + storeName
+        }
+
+        async function deleteStore(event) {
+          let storeName = this.findListNode(event.currentTarget).getAttribute(STORE_NAME_ATTR);
+          let storedURL = window.localStorage.getItem('db_url')
+
+          let asURL = new URL(storedURL);
+          let userid = asURL.username;
+          let password = asURL.password;
+          let host = asURL.host;
+          let protocol = asURL.protocol
+          let auth = ((userid === undefined) || (password === undefined)) ? ':' : userid + ':' + password;
+
+          let url = protocol + '//' + host + "/" + storeName
+
+          let resp = await fetch(url, {method: 'DELETE',
+                                       credentials: 'same-origin',
+                                       redirect: 'follow',
+                                       agent: null,
+                                       headers: {
+                                         "Content-Type": "text/plain",
+                                         'Authorization': 'Basic ' + btoa(auth)
+                                       },
+                                       timeout: 5000})
+                                .then(resp => console.log("Deleted", resp))
+                                .catch(err => console.error("Error Deleting", err))
+
+          window.location.href = "/"
         }
 
         function invalidResponse() {

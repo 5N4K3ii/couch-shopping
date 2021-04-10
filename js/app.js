@@ -70,36 +70,36 @@ class ShoppingBase {
         this.cancelEditButton.addEventListener('click', () => { this.cancelEdit() });
     }
 
-    refresh() {
-        this.store.getAll().then(items => {
-            //Signal for shopping mode
-            let newIsShopping = ((items.filter(item => item.incart).length) > 0)
-            let didUpdate = (newIsShopping != this.isShopping)
-            this.isShopping = newIsShopping
-            if (didUpdate && (this.shoppingChangeHandler != null)) {
-              this.shoppingChangeHandler()
-            }
+    // refresh() {
+    //     this.store.getAll().then(items => {
+    //         //Signal for shopping mode
+    //         let newIsShopping = ((items.filter(item => item.incart).length) > 0)
+    //         let didUpdate = (newIsShopping != this.isShopping)
+    //         this.isShopping = newIsShopping
+    //         if (didUpdate && (this.shoppingChangeHandler != null)) {
+    //           this.shoppingChangeHandler()
+    //         }
 
-            let options = select_item.getElementsByTagName('option');
-            for (var i=options.length; i--;) {
-                this.categoryField.removeChild(options[i]);
-            }
-            this.aisles = items.filter(item => {item.isCategory})
+    //         let options = select_item.getElementsByTagName('option');
+    //         for (var i=options.length; i--;) {
+    //             this.categoryField.removeChild(options[i]);
+    //         }
+    //         this.aisles = items.filter(item => {item.isCategory})
 
-            for (let i=0; i < this.aisles.length; i++) {
-              if (!this.aisles[i].incart) {
-                let x = document.createElement("OPTION");
-                x.value = this.aisles[i].category;
-                x.text = this.aisles[i].item;
-                this.categoryField.appendChild(x);
-              }
-            }
+    //         for (let i=0; i < this.aisles.length; i++) {
+    //           if (!this.aisles[i].incart) {
+    //             let x = document.createElement("OPTION");
+    //             x.value = this.aisles[i].category;
+    //             x.text = this.aisles[i].item;
+    //             this.categoryField.appendChild(x);
+    //           }
+    //         }
     
-            //standard refresh logic
-            this.sortItems(items);
-            this.renderitemList(items);
-        });
-    }
+    //         //standard refresh logic
+    //         this.sortItems(items);
+    //         this.renderitemList(items);
+    //     });
+    // }
 
     sortItems(itemList) {
         itemList.sort((item1, item2) => {
