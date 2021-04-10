@@ -176,7 +176,7 @@
 
         function invalidResponse() {
             console.log("Called invalidResp");
-            window.location.replace('/configure.html')
+            window.location.replace('/couch-shopping/configure.html')
         }
 
         function isArray(what) {
@@ -186,7 +186,7 @@
         function checker() {
           let storedURL = window.localStorage.getItem('db_url')
           if (null == storedURL) {
-            window.location.replace('/configure.html')
+            window.location.replace('/couch-shopping/configure.html')
           }
 
           let asURL = new URL(storedURL);
