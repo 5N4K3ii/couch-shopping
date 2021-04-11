@@ -124,7 +124,7 @@
             result.querySelector('.clear-list').classList.add('invisible');
             result.querySelector('.cart-toggle').classList.add('invisible');
 
-            result.querySelector('.edit-item').addEventListener('click', async (event) => { await editStore(event); this.editListItem() });
+            result.querySelector('.edit-item').addEventListener('click', async (event) => { await editStore(event); });
             result.querySelector('.delete-item').addEventListener('click', event => { deleteStore(event) });
 
             list.appendChild(result);
