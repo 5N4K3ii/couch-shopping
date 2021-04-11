@@ -99,7 +99,7 @@
                         .then(resp => console.log("Added Misc", resp))
                         .catch(err => console.error("Error Adding Misc", err))
 
-            window.location.href = "edit-store.html?store=" + newStoreName
+            window.location.href = "/couch-shopping/edit-store.html?store=" + newStoreName
             
           } else {
             window.alert("Valid store names contain letters, numbers, and hyphens (no spaces or other characters)")
@@ -115,7 +115,7 @@
             var result = _itemTemplate.cloneNode(true);
             result.setAttribute(STORE_NAME_ATTR, dbList[i])
             let a = document.createElement('a');
-            a.href =  'shop.html?store=' + dbList[i];
+            a.href =  '/couch-shopping/shop.html?store=' + dbList[i];
             a.innerHTML = dbList[i];
             a.style.padding = '10px';
 
@@ -144,7 +144,7 @@
         function editStore(event) {
           let storeName = this.findListNode(event.currentTarget).getAttribute(STORE_NAME_ATTR);
 
-          window.location.href = "edit-store.html?store=" + storeName
+          window.location.href = "/couch-shopping/edit-store.html?store=" + storeName
         }
 
         async function deleteStore(event) {
@@ -172,12 +172,12 @@
                                 .then(resp => console.log("Deleted", resp))
                                 .catch(err => console.error("Error Deleting", err))
 
-          window.location.href = "index.html"
+          window.location.href = "/couch-shopping/index.html"
         }
 
         function invalidResponse() {
             console.log("Called invalidResp");
-            window.location.replace('configure.html')
+            window.location.replace('/couch-shopping/configure.html')
         }
 
         function isArray(what) {
@@ -187,7 +187,7 @@
         function checker() {
           let storedURL = window.localStorage.getItem('db_url')
           if (null == storedURL) {
-            window.location.replace('configure.html')
+            window.location.replace('/couch-shopping/configure.html')
           }
 
           let asURL = new URL(storedURL);
