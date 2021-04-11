@@ -1,22 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
-    <form action="">
-        <label for="url">Enter CouchDB URL:</label>
-        <input type="text" name="url" id="url"/>
-        <input type="submit" name="Set URL" id="subButton"/>
-    </form>
+    <head>
+        <meta charset="UTF-8">
+        <title>Configure</title>
+        <link rel="stylesheet" href="css/style.css">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="shortcut icon" href="favicon.ico">
+        <link rel="apple-touch-icon" sizes="180x180" href="images/apple-touch-icon.png">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="theme-color" content="#820185">
+    </head>
+    <div class="shopping-list">
+        <header class="shopping-list-header">
+          <h1>Configure</h1>
+        </header>
 
-    <script>
-        let subButton = document.getElementById('subButton')
-        let urlText = document.getElementById('url')
+        <main class="shopping-list-main">
+            <form action="">
+                <label for="url">Enter CouchDB URL:</label>
+                <input type="text" name="url" id="url"/>
+                <input type="submit" name="Set URL" id="subButton"/>
+            </form>
 
-        function handleSubmit(e) {
-            e.preventDefault();
-            window.localStorage.setItem('db_url', urlText.value)
-            window.location.href = "/couch-shopping/index.html"
-        }
+            <script>
+                let subButton = document.getElementById('subButton')
+                let urlText = document.getElementById('url')
 
-        subButton.onclick = handleSubmit
+                function handleSubmit(e) {
+                    e.preventDefault();
+                    window.localStorage.setItem('db_url', urlText.value)
+                    window.location.href = "/couch-shopping/index.html"
+                }
 
-    </script>
+                subButton.onclick = handleSubmit
+
+            </script>
+        </main>
+    </div>
 </html>
