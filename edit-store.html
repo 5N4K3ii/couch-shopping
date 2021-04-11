@@ -8,7 +8,7 @@
     <link rel="apple-touch-icon" sizes="180x180" href="images/apple-touch-icon.png">
 </head>
 <body>
-  <div style="text-align: center;"><a href="/index.html"><img src="images/home1600.png" width="50" height="50" alt="home"></a></div>
+  <div style="text-align: center;"><a href="index.html"><img src="images/home1600.png" width="50" height="50" alt="home"></a></div>
     <div class="shopping-list">
         <header class="shopping-list-header">
             <button style="float: right" id="addCat">Add Category</button>
@@ -115,7 +115,7 @@
         let storeName = srchParams.get("store");
         let db_url = window.localStorage.getItem('db_url');
         if ((null == storeName) || (null == db_url)) {
-          window.location.replace("/couch-shopping/index.html");
+          window.location.replace("index.html");
         }
         let mainHeader = document.getElementById("mainHdr")
         mainHeader.innerText = mainHeader.innerText + ' ' + storeName
