@@ -148,6 +148,9 @@
         }
 
         async function deleteStore(event) {
+          if(!window.confirm('Are you sure?'))
+            return;
+
           let storeName = this.findListNode(event.currentTarget).getAttribute(STORE_NAME_ATTR);
           let storedURL = window.localStorage.getItem('db_url')
 
